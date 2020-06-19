@@ -47,8 +47,37 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "S
 reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "HidePeopleBar" /t REG_DWORD /d "1" /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
 
+rem 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
+
 rem タスクバーのウィンドウプレビューを抑止する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ExtendedUIHoverTime" /t REG_DWORD /d "0xFFFFFFFF" /f
+
+
+rem シフトキーを押しながら右クリックしたときに「コマンドウィンドウをここで開く」を有効にする。
+reg add "HKCU\Software\Classes\Directory\Background\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKCU\Software\Classes\Directory\Background\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKCU\Software\Classes\Drive\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKCU\Software\Classes\Drive\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+
+rem シフトキーを押しながら右クリックしたときに「PowerShellウィンドウをここに開く」を隠す。
+reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+
+rem テキストエディタをサクラエディタに変更する。
+ftype txtfile="C:\Program Files (legacy)\sakura\sakura.exe %%1"
+rem .txt
+reg add "HKCR\SystemFileAssociations\text\shell\edit\command" /ve /t REG_SZ /d "C:\Program Files (legacy)\sakura\sakura.exe %%1" /f
+rem .js
+reg add "HKCR\JSFile\Shell\Edit\Command" /ve /t REG_SZ /d "C:\Program Files (legacy)\sakura\sakura.exe %%1" /f
+rem .bat
+reg add "HKCR\batfile\shell\edit\command" /ve /t REG_SZ /d "C:\Program Files (legacy)\sakura\sakura.exe %%1" /f
+rem .reg
+reg add "HKCR\regfile\shell\edit\command" /ve /t REG_SZ /d "C:\Program Files (legacy)\sakura\sakura.exe %%1" /f
+
+
 
 rem 壁紙を適当に変更
 echo F | xcopy /E /V %~dp0wallpaper.jpg %USERPROFILE%\Pictures\wallpaper\wallpaper.jpg
