@@ -66,6 +66,9 @@ reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "ShowBa
 reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
 
+rem 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
+
 rem テキストエディタをサクラエディタに変更する。
 ftype txtfile="C:\Program Files (legacy)\sakura\sakura.exe %%1"
 rem .txt
