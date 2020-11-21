@@ -41,15 +41,20 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "H
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "SeparateProcess" /t REG_DWORD /d "1" /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "LaunchTo" /t REG_DWORD /d "1" /f
 
-rem タスクバーの結合しない、ビューの非表示、検索の非表示、Peopleの非表示。
+rem タスクバーの結合をしない
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarGlomLevel" /t REG_DWORD /d "2" /f
+rem タスクビュー ボタンの非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d "0" /f
+rem Cortanaボタンの非表示
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCortanaButton" /t REG_DWORD /d "0" /f
+rem Peopleの非表示
 reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "HidePeopleBar" /t REG_DWORD /d "1" /f
+rem 検索枠の非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
-
+rem Windows Ink ワークスペースの非表示
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PenWorkspace" /v "PenWorkspaceButtonDesiredVisibility" /t REG_DWORD /d "0" /f
 rem 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
-
 rem タスクバーのウィンドウプレビューを抑止する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ExtendedUIHoverTime" /t REG_DWORD /d "0xFFFFFFFF" /f
 
@@ -65,9 +70,6 @@ reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "HideBa
 reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
 reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
-
-rem 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
 
 rem テキストエディタをサクラエディタに変更する。
 ftype txtfile="C:\Program Files (legacy)\sakura\sakura.exe %%1"
