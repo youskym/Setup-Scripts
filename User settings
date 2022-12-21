@@ -56,12 +56,25 @@ rem 検索枠の非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
 rem Windows Ink ワークスペースの非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PenWorkspace" /v "PenWorkspaceButtonDesiredVisibility" /t REG_DWORD /d "0" /f
+rem 今すぐ会議アイコンの削除
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "HideSCAMeetNow" /t REG_DWORD /d "1" /f
+
+rem ニュースと関心事項を削除
+rem ホバーで開かないように設定する。ホバー表示を有効にする場合は値を1にする。
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "ShellFeedsTaskbarOpenOnHover" /t REG_DWORD /d "0" /f
+rem 更新頻度を落とします。元に戻すときは値を0に設定する。
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarContentUpdateMode /t REG_DWORD /d "1" /f
+rem アイコン含め表示しない。表示するときは値を0、アイコンのみにするときは値を1に設定する。
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarViewMode /t REG_DWORD /d "2" /f
+rem ニュースと関心事項をユーザーから完全に削除する。元に戻すときは値を1に設定する。
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v EnableFeeds /t REG_DWORD /d "0" /f
+
 rem 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
+
 rem タスクバーのウィンドウプレビューを抑止する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "DisablePreviewDesktop" /t "REG_DWORD" /d "0" /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ExtendedUIHoverTime" /t REG_DWORD /d "0x0FFFFFFF" /f
-
 
 rem シフトキーを押しながら右クリックしたときに「コマンドウィンドウをここで開く」を有効にする。
 reg add "HKCU\Software\Classes\Directory\Background\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
