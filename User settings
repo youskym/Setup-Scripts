@@ -75,6 +75,8 @@ echo エクスプローラウィンドウごとにプロセスを分割する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "SeparateProcess" /t REG_DWORD /d "1" /f
 echo エクスプローラのデフォルト表示はPC
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "LaunchTo" /t REG_DWORD /d "1" /f
+echo フォルダーの結合の競合を非表示にする、をやめる。つまり、フォルダの上書きで警告が出るようにする。
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideMergeConflicts" /t REG_DWORD /d "0" /f
 
 echo タスクバー 一般の設定
 echo タスクバーの結合をしない
