@@ -1,117 +1,136 @@
 @echo off
-echo システムの自動ロックを外します。普段使いのPCには絶対に使用しないでください。
-echo 意図せず開いた場合はキーボードの操作を行わずにウィンドウを閉じて退出して下さい。
+REM 権限を自動で確認し、必要なら強引に昇格させて無警告に実行。
+whoami /priv | find "SeDebugPrivilege" > nul
+if %errorlevel% neq 0 ( goto getPrivileges )
+goto gotPrivileges
+
+:getPrivileges
+if '%1'=='ELEV' ( shift & goto gotPrivileges )
+setlocal DisableDelayedExpansion
+set "batchPath=%~0"
+setlocal EnableDelayedExpansion
+ECHO Set UAC = CreateObject^("Shell.Application"^) > "%temp%\OEgetPrivileges.vbs"
+ECHO UAC.ShellExecute "!batchPath!", "ELEV", "", "runas", 1 >> "%temp%\OEgetPrivileges.vbs"
+"%temp%\OEgetPrivileges.vbs"
+exit /b
+
+:gotPrivileges
+setlocal & pushd .
+REM ここから下に処理内容を記述します。
+
+@echo off
+echo PCの細かい設定を一括で変更します。
+echo 電源設定など、セットアップユーザー用の特殊な変更を含みます。
 pause
-echo 通常利用するPCで使用しないようにしてください。
-pause
-echo 設定完了後に強制的に再起動が発生します。
+echo 間違って開いた場合はこのままウィンドウを閉じてください。
 pause
 echo 何かキーを押すと設定を開始します。
 pause
 
-rem ディスプレイの電源を切る
+echo ディスプレイの電源を切る
 powercfg -x monitor-timeout-ac 0
 powercfg -x monitor-timeout-dc 15
 
-rem コンピュータをスリープ状態にする
+echo コンピュータをスリープ状態にする
 powercfg -x standby-timeout-ac 0
 powercfg -x standby-timeout-dc 30
 
-rem 電源ボタンを押したときの動作(シャットダウン)
+echo 電源ボタンを押したときの動作(シャットダウン)
 powercfg -setacvalueindex scheme_balanced sub_buttons pbuttonaction 3
 powercfg -setdcvalueindex scheme_balanced sub_buttons pbuttonaction 3
 
-rem カバーを閉じた時の動作(何もしない)
+echo カバーを閉じた時の動作(何もしない)
 powercfg -setacvalueindex scheme_balanced sub_buttons lidaction 0
 powercfg -setdcvalueindex scheme_balanced sub_buttons lidaction 0
 
-rem 時間経過でロックしない
+echo 時間経過でロックしない
 powercfg -setdcvalueindex scheme_balanced sub_none consolelock 0
 powercfg -setacvalueindex scheme_balanced sub_none consolelock 0
 
-rem スクリーンセーバーによるロックを止めます。
+echo スクリーンセーバーによるロックを止めます。
 reg add "HKCU\Control Panel\Desktop" /v "ScreenSaveActive" /t REG_SZ /d "0" /f
 reg add "HKCU\Control Panel\Desktop" /v "ScreenSaveTimeOut" /t REG_SZ /d "0" /f
 reg add "HKCU\Control Panel\Desktop" /v "ScreenSaverIsSecure" /t REG_SZ /d "0" /f
 
-rem 高速スタートアップをOFFにする。
+echo 高速スタートアップをOFFにする。
 reg add "HKLM\SYSTEM\ControlSet001\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f
 
-rem 隠しファイルとドライブ表示、拡張子表示、プロセス分割、エクスプローラの表示デフォルトはPC。
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d "0" /f
+echo デスクトップにコンピューター（PC）アイコンを表示
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d "0" /f
+echo デスクトップにコントロールパネルアイコンを表示
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d "0" /f
+echo デスクトップにユーザーのフォルダを表示
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d "0" /f
+echo デスクトップにネットワークアイコンを表示
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d "0" /f
+
+echo エクスプローラ一般の設定
+echo 隠しファイルを表示する(しない場合は2に設定)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d "1" /f
+echo 隠しドライブを表示する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideDrivesWithNoMedia" /d "0" /f
+echo 拡張子を表示する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d "0" /f
+echo エクスプローラウィンドウごとにプロセスを分割する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "SeparateProcess" /t REG_DWORD /d "1" /f
+echo エクスプローラのデフォルト表示はPC
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "LaunchTo" /t REG_DWORD /d "1" /f
 
-rem タスクバーの結合をしない
+echo タスクバー 一般の設定
+echo タスクバーの結合をしない
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarGlomLevel" /t REG_DWORD /d "2" /f
-rem タスクビュー ボタンの非表示
+echo タスクビュー ボタンの非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d "0" /f
-rem Cortanaボタンの非表示
+echo Cortanaボタンの非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCortanaButton" /t REG_DWORD /d "0" /f
-rem Peopleの非表示
+echo Peopleの非表示
 reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "HidePeopleBar" /t REG_DWORD /d "1" /f
-rem 検索枠の非表示
+echo 検索枠の非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
-rem Windows Ink ワークスペースの非表示
+echo Windows Ink ワークスペースの非表示
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PenWorkspace" /v "PenWorkspaceButtonDesiredVisibility" /t REG_DWORD /d "0" /f
-rem 今すぐ会議アイコンの削除
+echo 今すぐ会議アイコンの削除
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "HideSCAMeetNow" /t REG_DWORD /d "1" /f
 
-rem ニュースと関心事項を削除
-rem ホバーで開かないように設定する。ホバー表示を有効にする場合は値を1にする。
+echo ニュースと関心事項を削除
+echo ホバーで開かないように設定する。ホバー表示を有効にする場合は値を1にする。
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "ShellFeedsTaskbarOpenOnHover" /t REG_DWORD /d "0" /f
-rem 更新頻度を落とします。元に戻すときは値を0に設定する。
+echo 更新頻度を落とします。元に戻すときは値を0に設定する。
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarContentUpdateMode /t REG_DWORD /d "1" /f
-rem アイコン含め表示しない。表示するときは値を0、アイコンのみにするときは値を1に設定する。
+echo アイコン含め表示しない。表示するときは値を0、アイコンのみにするときは値を1に設定する。
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarViewMode /t REG_DWORD /d "2" /f
-rem ニュースと関心事項をユーザーから完全に削除する。元に戻すときは値を1に設定する。
+echo ニュースと関心事項をユーザーから完全に削除する。元に戻すときは値を1に設定する。
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v EnableFeeds /t REG_DWORD /d "0" /f
 
-rem 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
+echo 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
 
-rem タスクバーのウィンドウプレビューを抑止する
+echo タスクバーのウィンドウプレビューを抑止する
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "DisablePreviewDesktop" /t "REG_DWORD" /d "0" /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ExtendedUIHoverTime" /t REG_DWORD /d "0x0FFFFFFF" /f
 
-rem シフトキーを押しながら右クリックしたときに「コマンドウィンドウをここで開く」を有効にする。
+echo シフトキーを押しながら右クリックしたときに「コマンドウィンドウをここで開く」を有効にする。
 reg add "HKCU\Software\Classes\Directory\Background\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
 reg add "HKCU\Software\Classes\Directory\Background\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 reg add "HKCU\Software\Classes\Drive\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
 reg add "HKCU\Software\Classes\Drive\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 
-rem シフトキーを押しながら右クリックしたときに「PowerShellウィンドウをここに開く」を隠す。
+echo シフトキーを押しながら右クリックしたときに「PowerShellウィンドウをここに開く」を隠す。
 reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 reg add "HKCU\Software\Classes\Directory\Background\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
 reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 reg add "HKCU\Software\Classes\Drive\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
 
-rem テキストエディタをサクラエディタに変更する。
-ftype txtfile="C:\PortableApps\sakura\sakura.exe %%1"
-rem .txt
-reg add "HKCR\SystemFileAssociations\text\shell\edit\command" /ve /t REG_SZ /d "C:\PortableApps\sakura\sakura.exe %%1" /f
-rem .js
-reg add "HKCR\JSFile\Shell\Edit\Command" /ve /t REG_SZ /d "C:\PortableApps\sakura\sakura.exe %%1" /f
-rem .bat
-reg add "HKCR\batfile\shell\edit\command" /ve /t REG_SZ /d "C:\PortableApps\sakura\sakura.exe %%1" /f
-rem .reg
-reg add "HKCR\regfile\shell\edit\command" /ve /t REG_SZ /d "C:\PortableApps\sakura\sakura.exe %%1" /f
+echo インターネットの自動構成スクリプトを設定します。(下記はSymantec WSS例)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v "AutoConfigURL" /t REG_SZ /d "https://pfms.wss.symantec.com/v1/pac?tenant=hogehoge ac=fugefuge" /f
 
-
+echo ホームページを設定します。
+reg add "HKCU\Software\Microsoft\Internet Explorer\Main" /v "Start Page" /t REG_SZ /d "https://google.co.jp/" /f
+reg delete "HKCU\Software\Microsoft\Internet Explorer\Main" /v "Secondary Start Pages" /f
 
 rem 壁紙を適当に変更
 echo F | xcopy /E /V %~dp0wallpaper.jpg %USERPROFILE%\Pictures\wallpaper\wallpaper.jpg
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Wallpaper" /t REG_SZ /d %USERPROFILE%\Pictures\wallpaper\wallpaper.jpg /f
 
-echo ドライバのダウンロード
-bitsadmin /transfer NFCdriverDL http://www.sony.co.jp/Products/felica/consumer/download/driver/PaSoRiDriver/NFCPortWithDriver.exe %USERPROFILE%\Downloads\NFCPortWithDriver.exe
-
-echo インストーラの操作をお願いします。
-call %USERPROFILE%\Downloads\NFCPortWithDriver.exe
-
-echo 再起動します。
+echo 処理が終わりました。再起動しておくことをお勧めします。
 pause
-
-shutdown /r /t 0
