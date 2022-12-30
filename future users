@@ -17,104 +17,202 @@ exit /b
 :gotPrivileges
 setlocal & pushd .
 REM ここから下に処理内容を記述します。
-
 @echo off
-echo デフォルトユーザー向けに、PCの細かい設定を一括で変更します。
+cd /d %~dp0
+
+echo 新規ユーザーの主にエクスプローラに関する設定変更
+echo.
+echo PCの細かい設定を一括で変更します。
+echo 電源設定など、セットアップユーザー用の特殊な変更を含みます。
 pause
 echo 間違って開いた場合はこのままウィンドウを閉じてください。
 pause
 echo 何かキーを押すと設定を開始します。
 pause
+echo.
 
 echo デフォルトユーザーのロード
-reg load "HKU\TEMP" "C:\Users\Default\NTUSER.DAT"
+reg load "HKEY_USER\TEMP" "C:\Users\Default\NTUSER.DAT"
+
+echo 高速スタートアップをOFFにする。（全てのユーザに影響します）
+  reg add "HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f
 
 echo スクリーンセーバーによるロックを止めます。
-reg add "HKU\TEMP\Control Panel\Desktop" /v "ScreenSaveActive" /t REG_SZ /d "0" /f
-reg add "HKU\TEMP\Control Panel\Desktop" /v "ScreenSaveTimeOut" /t REG_SZ /d "0" /f
-reg add "HKU\TEMP\Control Panel\Desktop" /v "ScreenSaverIsSecure" /t REG_SZ /d "0" /f
+  reg add "HKEY_USER\TEMP\Control Panel\Desktop" /v "ScreenSaveActive" /t REG_SZ /d "0" /f
+  reg add "HKEY_USER\TEMP\Control Panel\Desktop" /v "ScreenSaveTimeOut" /t REG_SZ /d "0" /f
+  reg add "HKEY_USER\TEMP\Control Panel\Desktop" /v "ScreenSaverIsSecure" /t REG_SZ /d "0" /f
 
-echo 高速スタートアップをOFFにする。
-reg add "HKLM\SYSTEM\ControlSet001\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f
 
-echo デスクトップにコンピューター（PC）アイコンを表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d "0" /f
-echo デスクトップにコントロールパネルアイコンを表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d "0" /f
-echo デスクトップにユーザーのフォルダを表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d "0" /f
-echo デスクトップにネットワークアイコンを表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d "0" /f
 
-echo エクスプローラ一般の設定
-echo 隠しファイルを表示する(しない場合は2に設定)
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d "1" /f
-echo 隠しドライブを表示する
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideDrivesWithNoMedia" /d "0" /f
-echo 拡張子を表示する
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d "0" /f
-echo エクスプローラウィンドウごとにプロセスを分割する
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "SeparateProcess" /t REG_DWORD /d "1" /f
-echo エクスプローラのデフォルト表示はPC
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "LaunchTo" /t REG_DWORD /d "1" /f
-echo フォルダーの結合の競合を非表示にする、をやめる。つまり、フォルダの上書きで警告が出るようにする。
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideMergeConflicts" /t REG_DWORD /d "0" /f
+echo エクスプローラの設定（フォルダーオプション）全般
+echo エクスプローラのデフォルト表示はPC（PC：1、クイックアクセス(ホーム)：2）
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "LaunchTo" /t REG_DWORD /d "1" /f
 
-echo タスクバー 一般の設定
-echo タスクバーの結合をしない
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarGlomLevel" /t REG_DWORD /d "2" /f
-echo タスクビュー ボタンの非表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d "0" /f
-echo Cortanaボタンの非表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCortanaButton" /t REG_DWORD /d "0" /f
-echo Peopleの非表示
-reg add "HKU\TEMP\Software\Policies\Microsoft\Windows\Explorer" /v "HidePeopleBar" /t REG_DWORD /d "1" /f
+echo エクスプローラの設定（フォルダーオプション）表示
+echo ファイルおよびフォルダー
+  echo ステータスバーを表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowStatusBar" /t REG_DWORD /d "1" /f
+  echo タイトルバーに完全なパスを表示しない
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\CabinetState" /v "FullPath" /t REG_DWORD /d "0" /f
+  echo チェックボックスを使用して項目を選択しない
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "AutoCheckSelect" /t REG_DWORD /d "0" /f
+  echo ドライブ文字を表示する（しない場合は2に設定）
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowDriveLettersFirst" /t REG_DWORD /d "0" /f
+  echo 隠しファイル、フォルダ、ドライブを表示する（しない場合は2に設定）
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d "1" /f
+  echo フォルダーとデスクトップの項目の説明をポップアップで表示する
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowInfoTip" /t REG_DWORD /d "1" /f
+  echo フォルダーのヒントにファイルサイズ情報を表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "FolderContentsInfoTip" /t REG_DWORD /d "1" /f
+  echo フォルダーの結合の競合を非表示にする
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideMergeConflicts" /t REG_DWORD /d "1" /f
+  echo プレビューウィンドウでプレビューのハンドラーを表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowPreviewHandlers" /t REG_DWORD /d "1" /f
+  echo リストビューで入力するとき、入力した項目をビューで選択する（変更の際は要再起動、デフォルトは0）
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TypeAhead" /t REG_DWORD /d "0" /f
+  echo ログオン時に以前のフォルダー ウインドウを表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "PersistBrowsers" /t REG_DWORD /d "1" /f
+  echo 暗号化や圧縮されたNTFSファイルをカラーで表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCompColor" /t REG_DWORD /d "1" /f
+  echo 共有ウィザードを使用する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "SharingWizardOn" /t REG_DWORD /d "1" /f
+  echo 空のドライブを表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideDrivesWithNoMedia" /d "0" /f
+  echo 項目間のスペースを減らさない（コンパクト ビューをOFFに）
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "UseCompactMode" /d "0" /f  
+  echo 縮小版にファイルアイコンを表示する
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTypeOverlay" /t REG_DWORD /d "1" /f
+  echo 常にアイコンを表示ではなく、縮小版を表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "IconsOnly" /t REG_DWORD /d "0" /f
+  echo 登録されている拡張子を表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d "0" /f
+  echo 同期プロバイダーの通知を表示する
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowSyncProviderNotifications" /t REG_DWORD /d "1" /f
+  echo 別のプロセスでフォルダーウィンドウを開く（メモリを犠牲にしてデスクトップの巻き込まれ事故を予防）
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "SeparateProcess" /t REG_DWORD /d "1" /f
+  echo 保護されたシステムファイルを表示しない
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowSuperHidden" /t REG_DWORD /d "0" /f
+
+echo エクスプローラの設定（フォルダーオプション）検索
+echo 検索方法
+  echo ファイルシステムのファイルフォルダーの検索時にインデックスを使用する
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences" /v "WholeFileSystem" /t REG_DWORD /d "0" /f
+echo インデックスが作成されていない場所の検索
+  echo システムディレクトリを含める
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences" /v "SystemFolders" /t REG_DWORD /d "1" /f
+  echo 圧縮されたファイルを含めない
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences" /v "ArchivedFiles" /t REG_DWORD /d "0" /f
+  echo ファイル名と内容を常に検索する
+    reg add "HKEY_USER\TEMP\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Search\PrimaryProperties\UnindexedLocations" /v "SearchOnly" /t REG_DWORD /d "1" /f
+
+echo 以下あんま触んない方が良さそうなエントリーなのでスキップ
+call :skipexplorer
+echo エクスプローラの設定（フォルダーオプション）全般
+echo プライバシー
+  echo 最近使用したファイルをクイックアクセスに表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowRecent" /t REG_DWORD /d "1" /f
+  echo 頻繁に使用されるフォルダーを表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowFrequent" /t REG_DWORD /d "1" /f
+  echo Office.comのファイルを表示する
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowCloudFilesInQuickAccess" /t REG_DWORD /d "1" /f
+
+echo エクスプローラの設定（フォルダーオプション）表示
+echo ナビゲーションウィンドウ
+  echo すべてのフォルダーを表示しない
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "NavPaneShowAllFolders" /t REG_DWORD /d "0" /f
+  echo 可用性の状態を常に表示しない
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "NavPaneExpandToCurrentFolder" /t REG_DWORD /d "0" /f
+  echo 開いているフォルダーまで展開しない
+    reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "NavPaneExpandToCurrentFolder" /t REG_DWORD /d "0" /f
+:skipexplorer
+
+
+
+echo エクスプローラの設定 タスクバーの設定
+echo Windows11
+echo ウィジェットの非表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarDa" /t REG_DWORD /d "0" /f
+echo チャットの非表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarMn" /t REG_DWORD /d "0" /f
 echo 検索枠の非表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
-echo Windows Ink ワークスペースの非表示
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\PenWorkspace" /v "PenWorkspaceButtonDesiredVisibility" /t REG_DWORD /d "0" /f
-echo 今すぐ会議アイコンの削除
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "HideSCAMeetNow" /t REG_DWORD /d "1" /f
-
-echo ニュースと関心事項を削除
-echo ホバーで開かないように設定する。ホバー表示を有効にする場合は値を1にする。
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "ShellFeedsTaskbarOpenOnHover" /t REG_DWORD /d "0" /f
-echo 更新頻度を落とします。元に戻すときは値を0に設定する。
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarContentUpdateMode /t REG_DWORD /d "1" /f
-echo アイコン含め表示しない。表示するときは値を0、アイコンのみにするときは値を1に設定する。
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarViewMode /t REG_DWORD /d "2" /f
-echo ニュースと関心事項をユーザーから完全に削除する。元に戻すときは値を1に設定する。
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v EnableFeeds /t REG_DWORD /d "0" /f
-
-echo 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
-
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
+echo タスクビュー ボタンの表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d "1" /f
+echo Windows Ink ワークスペースの非表示（ペンメニューの非表示）
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\PenWorkspace" /v "PenWorkspaceButtonDesiredVisibility" /t REG_DWORD /d "0" /f
+echo 仮想タッチパッドの非表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\PenWorkspace" /v "TouchpadDesiredVisibility" /t REG_DWORD /d "0" /f
 echo タスクバーのウィンドウプレビューを抑止する
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "DisablePreviewDesktop" /t "REG_DWORD" /d "0" /f
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ExtendedUIHoverTime" /t REG_DWORD /d "0x0FFFFFFF" /f
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "DisablePreviewDesktop" /t "REG_DWORD" /d "0" /f
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ExtendedUIHoverTime" /t REG_DWORD /d "0x0FFFFFFF" /f
 
+echo ニュースと関心事項
+echo ホバーで開かないように設定する。ホバー表示を有効にする場合は値を1にする。
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "ShellFeedsTaskbarOpenOnHover" /t REG_DWORD /d "0" /f
+echo 更新頻度を落とします。元に戻すときは値を0に設定する。
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarContentUpdateMode /t REG_DWORD /d "1" /f
+echo アイコン含め表示しない。表示するときは値を0、アイコンのみにするときは値を1に設定する。
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Feeds" /v ShellFeedsTaskbarViewMode /t REG_DWORD /d "2" /f
+echo ニュースと関心事項をユーザーから完全に削除する。元に戻すときは値を1に設定する。
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v EnableFeeds /t REG_DWORD /d "0" /f
+
+echo Windows10以前のみ？
+echo タスクバーの結合をしない
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarGlomLevel" /t REG_DWORD /d "2" /f
+echo Cortanaボタンの非表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCortanaButton" /t REG_DWORD /d "0" /f
+echo Peopleの非表示
+  reg add "HKEY_USER\TEMP\Software\Policies\Microsoft\Windows\Explorer" /v "HidePeopleBar" /t REG_DWORD /d "1" /f
+echo 今すぐ会議アイコンの削除
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "HideSCAMeetNow" /t REG_DWORD /d "1" /f
+
+
+
+echo エクスプローラの設定 デスクトップの設定
+echo デスクトップにコンピューター（PC）アイコンを表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d "0" /f
+echo デスクトップにコントロールパネルアイコンを表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d "0" /f
+echo デスクトップにユーザーのフォルダを表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d "0" /f
+echo デスクトップにネットワークアイコンを表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d "0" /f
+echo デスクトップにゴミ箱を表示
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d "0" /f
+
+echo 壁紙を適当に変更
+echo F | xcopy /E /V %~dp0wallpaper.jpg %USERPROFILE%\Pictures\wallpaper\wallpaper.jpg
+reg add "HKEY_USER\TEMP\Control Panel\Desktop" /v "Wallpaper" /t REG_SZ /d %USERPROFILE%\Pictures\wallpaper\wallpaper.jpg /f
+
+
+
+echo コマンドプロンプトの設定
 echo シフトキーを押しながら右クリックしたときに「コマンドウィンドウをここで開く」を有効にする。
-reg add "HKU\TEMP\Software\Classes\Directory\Background\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
-reg add "HKU\TEMP\Software\Classes\Directory\Background\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
-reg add "HKU\TEMP\Software\Classes\Drive\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
-reg add "HKU\TEMP\Software\Classes\Drive\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Directory\Background\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Directory\Background\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Drive\shell\cmd" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Drive\shell\cmd" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
 
 echo シフトキーを押しながら右クリックしたときに「PowerShellウィンドウをここに開く」を隠す。
-reg add "HKU\TEMP\Software\Classes\Directory\Background\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
-reg add "HKU\TEMP\Software\Classes\Directory\Background\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
-reg add "HKU\TEMP\Software\Classes\Drive\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
-reg add "HKU\TEMP\Software\Classes\Drive\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Directory\Background\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Directory\Background\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Drive\shell\Powershell" /v "HideBasedOnVelocityId" /t REG_DWORD /d "0x639bc8" /f
+reg add "HKEY_USER\TEMP\Software\Classes\Drive\shell\Powershell" /v "ShowBasedOnVelocityId" /t REG_DWORD /d "0x0" /f
+
+
+
+echo ネットワーク絡みの設定
+echo 未インストールのユニバーサルWindowsプラットフォーム向けクラウドコンテンツを無効化する
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f
 
 echo インターネットの自動構成スクリプトを設定します。(下記はSymantec WSS例)
-reg add "HKU\TEMP\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v "AutoConfigURL" /t REG_SZ /d "https://pfms.wss.symantec.com/v1/pac?tenant=hogehoge ac=fugefuge" /f
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v "AutoConfigURL" /t REG_SZ /d "https://pfms.wss.symantec.com/v1/pac?tenant=hogehoge ac=fugefuge" /f
 
 echo ホームページを設定します。
-reg add "HKU\TEMP\Software\Microsoft\Internet Explorer\Main" /v "Start Page" /t REG_SZ /d "https://google.co.jp/" /f
-reg delete "HKU\TEMP\Software\Microsoft\Internet Explorer\Main" /v "Secondary Start Pages" /f
+  reg add "HKEY_USER\TEMP\Software\Microsoft\Internet Explorer\Main" /v "Start Page" /t REG_SZ /d "https://google.co.jp/" /f
+  reg delete "HKEY_USER\TEMP\Software\Microsoft\Internet Explorer\Main" /v "Secondary Start Pages" /f
 
-rem 壁紙を適当に変更
-echo F | xcopy /E /V %~dp0wallpaper.jpg C:\Users\default\Pictures\wallpaper\wallpaper.jpg
-reg add "HKU\TEMP\Control Panel\Desktop" /v "Wallpaper" /t REG_SZ /d C:\Users\default\Pictures\wallpaper\wallpaper.jpg /f
+
 
 echo デフォルトユーザーのアンロード
 reg unload "HKU\TEMP"
