@@ -145,6 +145,14 @@ echo ナビゲーションウィンドウ
 :skipexplorer
 
 
+echo 入力言語のホットキーを無効化する
+    reg add "HKEY_CURRENT_USER\Keyboard Layout\Toggle" /v "Hotkey" /t REG_SZ /d "3" /f
+echo 入力言語の切り替え、割当てなし
+    reg add "HKEY_CURRENT_USER\Keyboard Layout\Toggle" /v "Language Hotkey" /t REG_SZ /d "3" /f
+echo キーボードレイアウトの切り替え、割当てなし
+    reg add "HKEY_CURRENT_USER\Keyboard Layout\Toggle" /v "Layout Hotkey" /t REG_SZ /d "3" /f
+
+
 
 echo エクスプローラの設定 タスクバーの設定
 echo Windows11
